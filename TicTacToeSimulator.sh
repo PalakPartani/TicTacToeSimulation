@@ -15,13 +15,15 @@ function displayBoard(){
 }
 
 #function to assign sign to player
-function assignSignToPlayer(){
+function assignSignToPlayerAndToss(){
 	assignedLetter=$(($((RANDOM%2))+1))
 	if [ $assignedLetter -eq 0 ]
 	then
 		userSign="X"
+		echo "player will play first with $userSign move"
 	else
 		userSign="O"
+		echo "player will play first with $userSign move"
 	fi
 }
-assignSignToPlayer
+assignSignToPlayerAndToss
