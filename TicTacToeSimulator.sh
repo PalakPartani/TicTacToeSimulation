@@ -26,4 +26,5 @@ function assignSignToPlayerAndToss(){
 		echo "player will play first with $userSign move"
 	fi
 }
+displayBoard
 assignSignToPlayerAndToss
