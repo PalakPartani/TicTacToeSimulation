@@ -1,33 +1,39 @@
-#!/bin/bash -x
-echo "Welcome to TicTacToe game.Good Luck!"
-#declare constants
-readonly POSITION=9
-readonly RESET_LETTER="_"
-#declare variables
+#!/bin/bash 
+echo "Welcome to tic tac toe game"
+#Constants
+POSITION=9
+RESET_LETTER="_"
+#variables
 stop=false
 count=1
 #initailize the board
 declare -a gameBoard
+
+for (( i=1; i<=$POSITION; i++))
+do
+   gameBoard[$i]=$RESET_LETTER
+done
+function toss(){
+	headOrTail=$((RANDOM%2))
+	if [[ $headOrTail == 1 ]]
+	then 
+		userSign="X"
+		computerSign="O"
+		echo "player turn"
+		playerMove
+	else
+		echo "computer turn"
+		userSign="O"
+		computerSign="X"
+		computerMove
+	fi
+}
 #function to display the board.
 function displayBoard(){
 	for (( i=1; i<=$POSITION; i=$(($i+3)) ))
 	do
 		echo "${gameBoard[i]} |  ${gameBoard[i+1]} | ${gameBoard[i+2]}"
 	done
-}
-#function to assign sign to player
-function assignSignToPlayerAndToss(){
-	assignedLetter=$((RANDOM%2))
-	if [ $assignedLetter -eq 0 ]
-	then
-		userSign="X"
-		computerSign="O"
-		playerMove
-	else
-		computerSign="X"
-		userSign="O"
-		computerMove
-	fi
 }
 #function to input player move and check if it is not filled.
 function playerMove(){
@@ -38,32 +44,42 @@ function playerMove(){
 	else
 		echo "already filled"
 	fi
+	#function calling
 	checkRowWinningCondition $userSign
-	checkColumnWinningCondition $userSign
-  	checkDiagonalWinningCondition $userSign
+	checkColumnWinningCondition $userSign 
+        checkDiagonalWinningCondition $userSign 
 	displayBoard
 	checkTie
+	echo "computer turn"
+	computerMove
 }
 #function to take computer move and check condition.
 function computerMove(){
 	local winValue=$( possiblePosition $computerSign )
+	local blockValue=$( possiblePosition $userSign )
 	local randomValue=$(($((RANDOM%9))+1))
 	if [[ ${gameBoard[$winValue]} == $RESET_LETTER ]]
 	then
 		gameBoard[$winValue]=$computerSign
+
+	elif [[ ${gameBoard[$blockValue]} == $RESET_LETTER ]]
+	then
+		gameBoard[$blockValue]=$computerSign
+
 	elif [[ ${gameBoard[$randomValue]} == $RESET_LETTER ]]
 	then
 		gameBoard[$randomValue]=$computerSign
 	fi
-	checkRowWinningCondition $computerSign
-	checkColumnWinningCondition $computerSign
+	checkRowWinningCondition $computerSign 
+	checkColumnWinningCondition $computerSign 
 	checkDiagonalWinningCondition $computerSign
 	displayBoard
+	echo "Player's turn"
 	checkTie
 	playerMove
 }
 #function to retrieve row position that can lead computer to win
-function getSmartRowPosition(){
+function rowPosition(){
 	for (( i=1; i<=$POSITION; i=$(($i+3)) ))
 	do
 		if [[ ${gameBoard[$i]} == ${gameBoard[$i+1]} ]] &&  [[ ${gameBoard[$i+1]} == $1 ]]
@@ -91,7 +107,7 @@ function getSmartRowPosition(){
 	done
 }
 #function to retrieve column position that can lead computer to win
-function getSmartColumnPosition(){
+function columnPosition(){
 	for (( i=1; i<=$POSITION; i=$(($i+1)) ))
 	do
 		if [[ ${gameBoard[$i]} == ${gameBoard[$i+3]} ]] &&  [[ ${gameBoard[$i+3]} == $1 ]]
@@ -119,7 +135,7 @@ function getSmartColumnPosition(){
 	done
 }
 #function to retrieve diagonal position that can lead computer to win
-function getSmartDiagonalPosition(){
+function diagonalPosition(){
 	if [ ${gameBoard[1]} == ${gameBoard[5]} ] && [ ${gameBoard[5]} == $1 ]
 	then
 		if [ ${gameBoard[9]} == $RESET_LETTER ]
@@ -129,7 +145,7 @@ function getSmartDiagonalPosition(){
 	elif [ ${gameBoard[1]} == ${gameBoard[9]} ] && [ ${gameBoard[9]} == $1 ]
 	then
 		if [ ${gameBoard[5]} == $RESET_LETTER ]
-		then
+		then 
 			echo "5"
 		fi
 	elif [ ${gameBoard[5]} == ${gameBoard[9]} ] && [ ${gameBoard[9]} == $1 ]
@@ -160,13 +176,13 @@ function getSmartDiagonalPosition(){
 }
 #function to check possible position
 function possiblePosition(){
-	local row=$( getSmartRowPosition $1 )
+	local row=$( rowPosition $1 )
 	if [[ $row -eq ' ' ]]
 	then
-		local column=$( getSmartColumnPosition $1)
+		local column=$( columnPosition $1)
 		if [[ $column -eq ' ' ]]
 		then
-			local diagonal=$( getSmartDiagonalPosition $1)
+			local diagonal=$( diagonalPosition $1)
 			if [[ $diagonal -eq ' ' ]]
 			then
 				echo "0"
@@ -179,7 +195,6 @@ function possiblePosition(){
    else
       echo "$row"
    fi
-
 }
 #function to check winning condition for row 
 function checkRowWinningCondition(){
@@ -189,8 +204,8 @@ function checkRowWinningCondition(){
       then
          displayBoard
          stop=true
-         break
-      fi
+         exit
+		fi
    done
 }
 #function to check winning condition for column
@@ -201,7 +216,7 @@ function checkColumnWinningCondition(){
 		then
 			displayBoard
 			stop=true
-			break
+			exit
 		fi
 	done
 }
@@ -213,12 +228,13 @@ function checkDiagonalWinningCondition(){
 		then
 			displayBoard
 			stop=true
-			break
+			exit
+		
 		elif [[ ${gameBoard[$(($i+2))]} == $1 && ${gameBoard[$(($i+4))]} == $1 && ${gameBoard[$(($i+6))]} == $1 ]]
 		then
 			displayBoard
 			stop=true
-			break
+			exit
 		fi
 	done
 }
@@ -229,7 +245,7 @@ function checkTie(){
 		if [ $count -eq 9 ]
 		then
 			displayBoard
-			echo "Game is a tie"
+			echo "Game Is tie"
 			stop=true
 			exit
 		else
@@ -238,11 +254,11 @@ function checkTie(){
 	done
 }
 #function from where main execution will start
-function main() {		
+function main(){
 	while [ $stop == false ]
 	do
 		displayBoard
-		assignSignToPlayerAndToss
+		toss
 	done
 }
 main
