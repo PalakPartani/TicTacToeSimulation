@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash -x
 echo "Welcome to TicTacToe game.Good Luck!"
 #declare constants
 readonly POSITION=9
@@ -23,11 +23,11 @@ function assignSignToPlayerAndToss(){
 	if [ $assignedLetter -eq 0 ]
 	then
 		userSign="X"
-		echo "player will play first with $userSign move"
+		computerSign="O"
 		playerMove
 	else
+		computerSign="X"
 		userSign="O"
-		echo "player will play first with $userSign move"
 		playerMove
 	fi
 }
@@ -40,7 +40,6 @@ function playerMove(){
 	else
 		echo "already filled"
 	fi
-	#function calling
 	checkRowWinningCondition $userSign
 	checkColumnWinningCondition $userSign
   	checkDiagonalWinningCondition $userSign
@@ -55,7 +54,7 @@ function checkRowWinningCondition(){
       then
          displayBoard
          stop=true
-         exit
+         break
       fi
    done
 }
@@ -67,7 +66,7 @@ function checkColumnWinningCondition(){
 		then
 			displayBoard
 			stop=true
-			exit
+			break
 		fi
 	done
 }
@@ -79,12 +78,12 @@ function checkDiagonalWinningCondition(){
 		then
 			displayBoard
 			stop=true
-			exit
+			break
 		elif [[ ${gameBoard[$(($i+2))]} == $1 && ${gameBoard[$(($i+4))]} == $1 && ${gameBoard[$(($i+6))]} == $1 ]]
 		then
 			displayBoard
 			stop=true
-			exit
+			break
 		fi
 	done
 }
