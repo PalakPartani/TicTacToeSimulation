@@ -1,6 +1,6 @@
 #!/bin/bash 
 echo "Welcome to tic tac toe game"
-#Constants
+#Constants 
 POSITION=9
 RESET_LETTER="_"
 #variables
@@ -67,11 +67,26 @@ function checkCornerAndFill() {
 		fi
 	done
 }
+#function to fill center first
+function checkCenterAndFill() {
+	#for ((i=1;i<=9;i++))
+	#do
+		if (( $i==5))
+		then
+			if [ ${gameBoard[5]} == $RESET_LETTER ]
+			then
+				echo $i
+				break
+			fi
+		fi
+	
+}	
 #function to take computer move and check condition.
 function computerMove(){
 	local winValue=$( possiblePosition $computerSign )
 	local blockValue=$( possiblePosition $userSign )
 	local cornerValue=$(checkCornerAndFill )
+	local centerValue=$(checkCenterAndFill)	
 	if [[ ${gameBoard[$cornerValue]} == $RESET_LETTER ]]
 	then
 		gameBoard[$cornerValue]=$computerSign
@@ -83,6 +98,10 @@ function computerMove(){
 	elif [[ ${gameBoard[$blockValue]} == $RESET_LETTER ]]
 	then
 		gameBoard[$blockValue]=$computerSign
+
+	 elif [[ ${gameBoard[$centerValue]} == $RESET_LETTER ]]
+  	 then
+     		 gameBoard[$centerValue]=$computerSign
 	fi
 	checkRowWinningCondition $computerSign 
 	checkColumnWinningCondition $computerSign 
