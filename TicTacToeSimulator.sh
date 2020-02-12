@@ -35,6 +35,17 @@ function displayBoard(){
 		echo "${gameBoard[i]} |  ${gameBoard[i+1]} | ${gameBoard[i+2]}"
 	done
 }
+
+#function to display winner
+function checkPlayer()
+{
+	if [[ $2 == "computer" ]]
+	then
+		echo "Computer wins "
+	else
+		echo "Player wins "
+	fi
+}
 #function to input player move and check if it is not filled.
 function playerMove(){
 	read -p "Enter where you want to mark :" playerMarkPosition
@@ -45,9 +56,9 @@ function playerMove(){
 		echo "already filled"
 	fi
 	#function calling
-	checkRowWinningCondition $userSign
-	checkColumnWinningCondition $userSign 
-        checkDiagonalWinningCondition $userSign 
+	checkRowWinningCondition $userSign "user"
+	checkColumnWinningCondition $userSign "user"
+        checkDiagonalWinningCondition $userSign "user" 
 	displayBoard
 	checkTie
 	echo "computer turn"
@@ -123,9 +134,9 @@ function computerMove(){
           gameBoard[$sideValue]=$computerSign
 
 	fi
-	checkRowWinningCondition $computerSign 
-	checkColumnWinningCondition $computerSign 
-	checkDiagonalWinningCondition $computerSign
+	checkRowWinningCondition $computerSign "computer"
+	checkColumnWinningCondition $computerSign "computer"
+	checkDiagonalWinningCondition $computerSign "computer"
 	displayBoard
 	echo "Player's turn"
 	checkTie
@@ -268,6 +279,7 @@ function checkColumnWinningCondition(){
 		if [[ ${gameBoard[$i]} == $1 && ${gameBoard[$(($i+3))]} == $1 && ${gameBoard[$(($i+6))]} == $1 ]]
 		then
 			displayBoard
+			checkPlayer $1 $2
 			stop=true
 			exit
 		fi
@@ -280,12 +292,14 @@ function checkDiagonalWinningCondition(){
 		if [[ ${gameBoard[$i]} == $1 && ${gameBoard[$(($i+4))]} == $1 && ${gameBoard[$(($i+8))]} == $1 ]]
 		then
 			displayBoard
+			checkPlayer $1 $2
 			stop=true
 			exit
 		
 		elif [[ ${gameBoard[$(($i+2))]} == $1 && ${gameBoard[$(($i+4))]} == $1 && ${gameBoard[$(($i+6))]} == $1 ]]
 		then
 			displayBoard
+			checkPlayer $1 $2
 			stop=true
 			exit
 		fi
