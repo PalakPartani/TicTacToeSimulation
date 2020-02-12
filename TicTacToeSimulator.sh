@@ -80,6 +80,21 @@ function checkCenterAndFill() {
 			fi
 		fi
 	
+}
+
+#function to fill sides 
+function checkSidesAndFill() {
+	for ((i=1;i<=9;i++))
+	do
+		if [[ $(($i % 2)) -eq  0 ]]
+		then
+			if [ ${gameBoard[$i]} == $RESET_LETTER ]
+			then
+				echo $i
+				break
+			fi
+		fi	
+	done
 }	
 #function to take computer move and check condition.
 function computerMove(){
@@ -87,6 +102,7 @@ function computerMove(){
 	local blockValue=$( possiblePosition $userSign )
 	local cornerValue=$(checkCornerAndFill )
 	local centerValue=$(checkCenterAndFill)	
+	local sideValue=$(checkSidesAndFill)
 	if [[ ${gameBoard[$cornerValue]} == $RESET_LETTER ]]
 	then
 		gameBoard[$cornerValue]=$computerSign
@@ -102,6 +118,10 @@ function computerMove(){
 	 elif [[ ${gameBoard[$centerValue]} == $RESET_LETTER ]]
   	 then
      		 gameBoard[$centerValue]=$computerSign
+	 elif [[ ${gameBoard[$sideValue]} == $RESET_LETTER ]]
+    then
+          gameBoard[$sideValue]=$computerSign
+
 	fi
 	checkRowWinningCondition $computerSign 
 	checkColumnWinningCondition $computerSign 
