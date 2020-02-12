@@ -13,7 +13,7 @@ for (( i=1; i<=$POSITION; i++))
 do
    gameBoard[$i]=$RESET_LETTER
 done
-function toss(){
+function assignSignToPlayerAndToss(){
 	headOrTail=$((RANDOM%2))
 	if [[ $headOrTail == 1 ]]
 	then 
@@ -53,22 +53,36 @@ function playerMove(){
 	echo "computer turn"
 	computerMove
 }
+#function to fill available corners first
+function checkCornerAndFill() {
+	for ((i=1;i<=9;i++))
+	do
+		if [[ $(( $i % 2)) -eq 1 ]] && [[ $i != 5 ]]
+		then	
+			if [ ${gameBoard[$i]} == $RESET_LETTER ]
+			then
+				echo $i
+				break
+			fi
+		fi
+	done
+}
 #function to take computer move and check condition.
 function computerMove(){
 	local winValue=$( possiblePosition $computerSign )
 	local blockValue=$( possiblePosition $userSign )
-	local randomValue=$(($((RANDOM%9))+1))
-	if [[ ${gameBoard[$winValue]} == $RESET_LETTER ]]
+	local cornerValue=$(checkCornerAndFill )
+	if [[ ${gameBoard[$cornerValue]} == $RESET_LETTER ]]
+	then
+		gameBoard[$cornerValue]=$computerSign
+	
+	elif [[ ${gameBoard[$winValue]} == $RESET_LETTER ]]
 	then
 		gameBoard[$winValue]=$computerSign
 
 	elif [[ ${gameBoard[$blockValue]} == $RESET_LETTER ]]
 	then
 		gameBoard[$blockValue]=$computerSign
-
-	elif [[ ${gameBoard[$randomValue]} == $RESET_LETTER ]]
-	then
-		gameBoard[$randomValue]=$computerSign
 	fi
 	checkRowWinningCondition $computerSign 
 	checkColumnWinningCondition $computerSign 
@@ -79,7 +93,7 @@ function computerMove(){
 	playerMove
 }
 #function to retrieve row position that can lead computer to win
-function rowPosition(){
+function getSmartRowPosition(){
 	for (( i=1; i<=$POSITION; i=$(($i+3)) ))
 	do
 		if [[ ${gameBoard[$i]} == ${gameBoard[$i+1]} ]] &&  [[ ${gameBoard[$i+1]} == $1 ]]
@@ -107,7 +121,7 @@ function rowPosition(){
 	done
 }
 #function to retrieve column position that can lead computer to win
-function columnPosition(){
+function getSmartColumnPosition(){
 	for (( i=1; i<=$POSITION; i=$(($i+1)) ))
 	do
 		if [[ ${gameBoard[$i]} == ${gameBoard[$i+3]} ]] &&  [[ ${gameBoard[$i+3]} == $1 ]]
@@ -135,7 +149,7 @@ function columnPosition(){
 	done
 }
 #function to retrieve diagonal position that can lead computer to win
-function diagonalPosition(){
+function getSmartDiagonalPosition(){
 	if [ ${gameBoard[1]} == ${gameBoard[5]} ] && [ ${gameBoard[5]} == $1 ]
 	then
 		if [ ${gameBoard[9]} == $RESET_LETTER ]
@@ -176,13 +190,13 @@ function diagonalPosition(){
 }
 #function to check possible position
 function possiblePosition(){
-	local row=$( rowPosition $1 )
+	local row=$( getSmartRowPosition $1 )
 	if [[ $row -eq ' ' ]]
 	then
-		local column=$( columnPosition $1)
+		local column=$( getSmartColumnPosition $1)
 		if [[ $column -eq ' ' ]]
 		then
-			local diagonal=$( diagonalPosition $1)
+			local diagonal=$( getSmartDiagonalPosition $1)
 			if [[ $diagonal -eq ' ' ]]
 			then
 				echo "0"
@@ -258,7 +272,7 @@ function main(){
 	while [ $stop == false ]
 	do
 		displayBoard
-		toss
+		assignSignToPlayerAndToss
 	done
 }
 main
