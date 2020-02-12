@@ -8,11 +8,11 @@ stop=false
 count=1
 #initailize the board
 declare -a gameBoard
-
 for (( i=1; i<=$POSITION; i++))
 do
    gameBoard[$i]=$RESET_LETTER
 done
+#function to assign sign and toss who plays first
 function assignSignToPlayerAndToss(){
 	headOrTail=$((RANDOM%2))
 	if [[ $headOrTail == 1 ]]
@@ -35,6 +35,17 @@ function displayBoard(){
 		echo "${gameBoard[i]} |  ${gameBoard[i+1]} | ${gameBoard[i+2]}"
 	done
 }
+
+#function to display winner
+function checkPlayer()
+{
+	if [[ $2 == "computer" ]]
+	then
+		echo "Computer wins "
+	else
+		echo "Player wins "
+	fi
+}
 #function to input player move and check if it is not filled.
 function playerMove(){
 	read -p "Enter where you want to mark :" playerMarkPosition
@@ -45,9 +56,9 @@ function playerMove(){
 		echo "already filled"
 	fi
 	#function calling
-	checkRowWinningCondition $userSign
-	checkColumnWinningCondition $userSign 
-        checkDiagonalWinningCondition $userSign 
+	checkRowWinningCondition $userSign "user"
+	checkColumnWinningCondition $userSign "user"
+   checkDiagonalWinningCondition $userSign "user" 
 	displayBoard
 	checkTie
 	echo "computer turn"
@@ -69,17 +80,14 @@ function checkCornerAndFill() {
 }
 #function to fill center first
 function checkCenterAndFill() {
-	#for ((i=1;i<=9;i++))
-	#do
-		if (( $i==5))
+	if (( $i==5))
+	then
+		if [ ${gameBoard[5]} == $RESET_LETTER ]
 		then
-			if [ ${gameBoard[5]} == $RESET_LETTER ]
-			then
-				echo $i
-				break
-			fi
+			echo $i
+			break
 		fi
-	
+	fi
 }
 
 #function to fill sides 
@@ -103,29 +111,26 @@ function computerMove(){
 	local cornerValue=$(checkCornerAndFill )
 	local centerValue=$(checkCenterAndFill)	
 	local sideValue=$(checkSidesAndFill)
-	if [[ ${gameBoard[$cornerValue]} == $RESET_LETTER ]]
-	then
-		gameBoard[$cornerValue]=$computerSign
 	
-	elif [[ ${gameBoard[$winValue]} == $RESET_LETTER ]]
+	if [[ ${gameBoard[$winValue]} == $RESET_LETTER ]]
 	then
 		gameBoard[$winValue]=$computerSign
-
 	elif [[ ${gameBoard[$blockValue]} == $RESET_LETTER ]]
 	then
 		gameBoard[$blockValue]=$computerSign
-
-	 elif [[ ${gameBoard[$centerValue]} == $RESET_LETTER ]]
-  	 then
-     		 gameBoard[$centerValue]=$computerSign
-	 elif [[ ${gameBoard[$sideValue]} == $RESET_LETTER ]]
-    then
-          gameBoard[$sideValue]=$computerSign
-
+	elif [[ ${gameBoard[$cornerValue]} == $RESET_LETTER ]]
+	then
+		gameBoard[$cornerValue]=$computerSign
+        elif [[ ${gameBoard[$centerValue]} == $RESET_LETTER ]]
+  	then
+     		gameBoard[$centerValue]=$computerSign
+	elif [[ ${gameBoard[$sideValue]} == $RESET_LETTER ]]
+        then
+          	gameBoard[$sideValue]=$computerSign
 	fi
-	checkRowWinningCondition $computerSign 
-	checkColumnWinningCondition $computerSign 
-	checkDiagonalWinningCondition $computerSign
+	checkRowWinningCondition $computerSign "computer"
+	checkColumnWinningCondition $computerSign "computer"
+	checkDiagonalWinningCondition $computerSign "computer"
 	displayBoard
 	echo "Player's turn"
 	checkTie
@@ -246,8 +251,8 @@ function possiblePosition(){
 			echo "$column"
 		fi
    else
-      echo "$row"
-   fi
+      	echo "$row"
+  	fi
 }
 #function to check winning condition for row 
 function checkRowWinningCondition(){
@@ -258,7 +263,7 @@ function checkRowWinningCondition(){
          displayBoard
          stop=true
          exit
-		fi
+      fi
    done
 }
 #function to check winning condition for column
@@ -268,6 +273,7 @@ function checkColumnWinningCondition(){
 		if [[ ${gameBoard[$i]} == $1 && ${gameBoard[$(($i+3))]} == $1 && ${gameBoard[$(($i+6))]} == $1 ]]
 		then
 			displayBoard
+			checkPlayer $1 $2
 			stop=true
 			exit
 		fi
@@ -280,12 +286,14 @@ function checkDiagonalWinningCondition(){
 		if [[ ${gameBoard[$i]} == $1 && ${gameBoard[$(($i+4))]} == $1 && ${gameBoard[$(($i+8))]} == $1 ]]
 		then
 			displayBoard
+			checkPlayer $1 $2
 			stop=true
 			exit
 		
 		elif [[ ${gameBoard[$(($i+2))]} == $1 && ${gameBoard[$(($i+4))]} == $1 && ${gameBoard[$(($i+6))]} == $1 ]]
 		then
 			displayBoard
+			checkPlayer $1 $2
 			stop=true
 			exit
 		fi
